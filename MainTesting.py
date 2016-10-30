@@ -277,13 +277,16 @@ print 'Time taken to train {}'.format(t_train_end - t_train_start)
 # epath = 'Emojis/'
 
 
+time_s = time.time()
+counter = 0
+max_frames = 30
 cap = cv2.VideoCapture(0)
 while(cap.isOpened()):
     ret, frame = cap.read()
     frame = cv2.flip(frame,1)
     gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
     eframe = frame.copy()
-    faces = face_cascade.detectMultiScale(gray,1.3,3)
+    faces = face_cascade.detectMultiScale(gray,1.2,2)
     if len(faces) != 0:
         x,y,w,h = faces[0]
 
@@ -304,12 +307,25 @@ while(cap.isOpened()):
         emoji = getEmoji(int(emotion[0]))
         ycenter = y + h/2 - emoji.shape[0]/2
         xcenter = x + w/ 2 - emoji.shape[1] / 2
-        eframe[ycenter:ycenter+emoji.shape[0],xcenter:xcenter+emoji.shape[1]] = emoji
-        cv2.namedWindow("Emoji Feed")
-        cv2.imshow('Emoji Feed', eframe)
-    else:
-        cv2.imshow('Emoji Feed', eframe)
+        try:
+            eframe[ycenter:ycenter+emoji.shape[0],xcenter:xcenter+emoji.shape[1]] = emoji
+        except ValueError:
+            pass
+
+    time_e = time.time()
+    counter += 1
+    sec = time_e - time_s
+    fps = counter / sec
+    if(counter > max_frames):
+        counter = 0
+        time_s = time.time()
+    cv2.putText(frame, str(int(fps)), (0,frame.shape[0]-1), fontFace=cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, fontScale=1, color=(0, 0, 255),thickness=2)
+    cv2.putText(eframe, str(int(fps)), (0,eframe.shape[0]-1), fontFace=cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, fontScale=1, color=(0, 0, 255),thickness=2)
     cv2.namedWindow('Regular Feed')
     cv2.imshow('Regular Feed',frame)
+    cv2.namedWindow("Emoji Feed")
+    cv2.imshow('Emoji Feed', eframe)
+
+    #print fps
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
