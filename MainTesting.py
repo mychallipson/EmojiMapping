@@ -50,14 +50,14 @@ def getEmotion(val):
         7 : 'surprise.png',
     }[val]
 
-neutral = cv2.imread('Emojis/neutral.png')
-angry = cv2.imread('Emojis/angry.png')
-contempt = cv2.imread('Emojis/contempt.png')
-disgust = cv2.imread('Emojis/disgust.png')
-fear = cv2.imread('Emojis/fear.png')
-happy = cv2.imread('Emojis/happy.png')
-sadness = cv2.imread('Emojis/sadness.png')
-surprise = cv2.imread('Emojis/surprise.png')
+neutral = cv2.imread('Emojis/neutral.png',-1)
+angry = cv2.imread('Emojis/angry.png',-1)
+contempt = cv2.imread('Emojis/contempt.png',-1)
+disgust = cv2.imread('Emojis/disgust.png',-1)
+fear = cv2.imread('Emojis/fear.png',-1)
+happy = cv2.imread('Emojis/happy.png',-1)
+sadness = cv2.imread('Emojis/sadness.png',-1)
+surprise = cv2.imread('Emojis/surprise.png',-1)
 
 def getEmoji(val):
     return{
@@ -321,7 +321,10 @@ while(cap.isOpened()):
         ycenter = y + h/2 - emoji.shape[0]/2
         xcenter = x + w/ 2 - emoji.shape[1] / 2
         try:
-            eframe[ycenter:ycenter+emoji.shape[0],xcenter:xcenter+emoji.shape[1]] = emoji
+            for c in range(0,3):
+                eframe[ycenter:ycenter+emoji.shape[0],xcenter:xcenter+emoji.shape[1],c] = \
+                    emoji[:, :, c] * (emoji[:, :, 3] / 255.0) + eframe[ycenter:ycenter + emoji.shape[0],
+                    xcenter:xcenter + emoji.shape[1], c] * (1.0 - emoji[:, :, 3] / 255.0)
         except ValueError:
             pass
 
