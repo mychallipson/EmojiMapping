@@ -58,6 +58,7 @@ fear = cv2.imread('Emojis/fear.png')
 happy = cv2.imread('Emojis/happy.png')
 sadness = cv2.imread('Emojis/sadness.png')
 surprise = cv2.imread('Emojis/surprise.png')
+
 def getEmoji(val):
     return{
         0 : neutral,
@@ -70,6 +71,8 @@ def getEmoji(val):
         7 : surprise,
     }[val]
 
+def distanceFromPoint(pointa, pointb):
+    return np.linalg.norm(np.array(pointa) - np.array(pointb))
 
 def distanceFromCenter(point):
     return np.linalg.norm(np.array(point) - np.array((.5,.5)))
@@ -88,6 +91,18 @@ def normalize(points,width,height):
         normalized_points.append(norm_cur)
     return np.float32(list(sum(normalized_points,())))
 
+def normalizeFromPoint(points,nPoint):
+    normalized_points = []
+    distances = []
+    for point in points:
+        distances.append(distanceFromPoint(point,nPoint))
+    max = np.amax(distances)
+    for point in points:
+        dx = point[0, 0] - nPoint[0, 0]
+        dy = point[0, 1] - nPoint[0, 1]
+        norm_cur = ( dx/max , dy/max)
+        normalized_points.append(norm_cur)
+    return np.float32(list(sum(normalized_points,())))
 
 train_labels = []
 count = 0
@@ -112,7 +127,8 @@ for path, file in image_locations:
         rect = dlib.rectangle(x,y,x+w,y+h)
         landmarks = np.matrix([[p.x, p.y] for p in predictor(img, rect).parts()])
         #norm = getDistances(landmarks,img.shape[1],img.shape[0])
-        norm = normalize(landmarks,img.shape[1],img.shape[0])
+        #norm = normalize(landmarks,img.shape[1],img.shape[0])
+        norm = normalizeFromPoint(landmarks,landmarks[30])
         train_data.append(norm)
     else:
         print train_labels.pop(counter)
@@ -141,12 +157,11 @@ svm.setType(cv2.ml.SVM_C_SVC)
 svm.setKernel(cv2.ml.SVM_LINEAR)
 svm.train(train_data_mat, cv2.ml.ROW_SAMPLE, train_labels_mat)
 svm.save('svm_data.dat')
-
 t_train_end = time.time()
 print 'Time taken to train {}'.format(t_train_end - t_train_start)
 
-# results = svm.predict(train_data_mat)
-#
+results = svm.predict(train_data_mat)
+
 # correct = 0
 # count = 0
 # for val in results[1]:
@@ -157,7 +172,7 @@ print 'Time taken to train {}'.format(t_train_end - t_train_start)
 #     count += 1
 #
 # print float(correct)/len(results[1])
-
+#
 # t_test_start = time.time()
 #
 # img = cv2.imread('happy-woman.jpg')
@@ -169,7 +184,7 @@ print 'Time taken to train {}'.format(t_train_end - t_train_start)
 # roi_color = img[y:y + h, x:x + w]
 # rect = dlib.rectangle(x,y,x+w,y+h)
 # landmarks = np.matrix([[p.x,p.y] for p in predictor(img,rect).parts()])
-# vals = getDistances(landmarks,img.shape[1],img.shape[0])
+# vals = normalizeFromPoint(landmarks,landmarks[30])
 # test_data = np.float32(vals).reshape(-1,len(vals))
 # result = svm.predict(test_data)
 # emotion = result[1]
@@ -185,7 +200,7 @@ print 'Time taken to train {}'.format(t_train_end - t_train_start)
 # roi_color = img[y:y + h, x:x + w]
 # rect = dlib.rectangle(x,y,x+w,y+h)
 # landmarks = np.matrix([[p.x,p.y] for p in predictor(img,rect).parts()])
-# vals = getDistances(landmarks,img.shape[1],img.shape[0])
+# vals = normalizeFromPoint(landmarks,landmarks[30])
 # test_data = np.float32(vals).reshape(-1,len(vals))
 # result = svm.predict(test_data)
 # emotion = result[1]
@@ -201,7 +216,7 @@ print 'Time taken to train {}'.format(t_train_end - t_train_start)
 # roi_color = img[y:y + h, x:x + w]
 # rect = dlib.rectangle(x,y,x+w,y+h)
 # landmarks = np.matrix([[p.x,p.y] for p in predictor(img,rect).parts()])
-# vals = getDistances(landmarks,img.shape[1],img.shape[0])
+# vals = normalizeFromPoint(landmarks,landmarks[30])
 # test_data = np.float32(vals).reshape(-1,len(vals))
 # result = svm.predict(test_data)
 # emotion = result[1]
@@ -217,7 +232,7 @@ print 'Time taken to train {}'.format(t_train_end - t_train_start)
 # roi_color = img[y:y + h, x:x + w]
 # rect = dlib.rectangle(x,y,x+w,y+h)
 # landmarks = np.matrix([[p.x,p.y] for p in predictor(img,rect).parts()])
-# vals = getDistances(landmarks,img.shape[1],img.shape[0])
+# vals = normalizeFromPoint(landmarks,landmarks[30])
 # test_data = np.float32(vals).reshape(-1,len(vals))
 # result = svm.predict(test_data)
 # emotion = result[1]
@@ -233,7 +248,7 @@ print 'Time taken to train {}'.format(t_train_end - t_train_start)
 # roi_color = img[y:y + h, x:x + w]
 # rect = dlib.rectangle(x,y,x+w,y+h)
 # landmarks = np.matrix([[p.x,p.y] for p in predictor(img,rect).parts()])
-# vals = getDistances(landmarks,img.shape[1],img.shape[0])
+# vals = normalizeFromPoint(landmarks,landmarks[30])
 # test_data = np.float32(vals).reshape(-1,len(vals))
 # result = svm.predict(test_data)
 # emotion = result[1]
@@ -249,7 +264,7 @@ print 'Time taken to train {}'.format(t_train_end - t_train_start)
 # roi_color = img[y:y + h, x:x + w]
 # rect = dlib.rectangle(x,y,x+w,y+h)
 # landmarks = np.matrix([[p.x,p.y] for p in predictor(img,rect).parts()])
-# vals = getDistances(landmarks,img.shape[1],img.shape[0])
+# vals = normalizeFromPoint(landmarks,landmarks[30])
 # test_data = np.float32(vals).reshape(-1,len(vals))
 # result = svm.predict(test_data)
 # emotion = result[1]
@@ -265,7 +280,7 @@ print 'Time taken to train {}'.format(t_train_end - t_train_start)
 # roi_color = img[y:y + h, x:x + w]
 # rect = dlib.rectangle(x,y,x+w,y+h)
 # landmarks = np.matrix([[p.x,p.y] for p in predictor(img,rect).parts()])
-# vals = getDistances(landmarks,img.shape[1],img.shape[0])
+# vals = normalizeFromPoint(landmarks,landmarks[30])
 # test_data = np.float32(vals).reshape(-1,len(vals))
 # result = svm.predict(test_data)
 # emotion = result[1]
@@ -286,10 +301,8 @@ while(cap.isOpened()):
     frame = cv2.flip(frame,1)
     gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
     eframe = frame.copy()
-    faces = face_cascade.detectMultiScale(gray,1.2,2)
-    if len(faces) != 0:
-        x,y,w,h = faces[0]
-
+    faces = face_cascade.detectMultiScale(gray,1.3,5)
+    for (x,y,w,h) in faces:
         cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
         roi_gray = gray[y:y + h, x:x + w]
         roi_color = frame[y:y + h, x:x + w]
@@ -299,7 +312,7 @@ while(cap.isOpened()):
             pos = (point[0, 0], point[0, 1])
             cv2.circle(frame, pos, 3, color=(0, 255, 255))
         #vals = normalize(landmarks, img.shape[1], img.shape[0])
-        vals = normalize(landmarks, img.shape[1], img.shape[0])
+        vals = normalizeFromPoint(landmarks,landmarks[30])
         test_data = np.float32(vals).reshape(-1, len(vals))
         result = svm.predict(test_data)
         emotion = result[1]
