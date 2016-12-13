@@ -8,11 +8,11 @@ face_cascade = cv2.CascadeClassifier('haarcascades/haarcascade_frontalface_defau
 eye_cascade = cv2.CascadeClassifier('haarcascades/haarcascade_eye.xml')
 mouth_cascade = cv2.CascadeClassifier('haarcascades/haarcascade_mcs_mouth.xml')
 t0 = time.time()
-img = cv2.imread('happy-woman.jpg')
+img = cv2.imread('faces.jpg')
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 gray2 = gray
 faces = face_cascade.detectMultiScale(gray,1.03,5)
-# svm = cv2.ml.load('svm_data.dat')
+#svm = cv2.ml.SVM_create()
 
 # def distanceFromCenter(point):
 #     return np.linalg.norm(np.array(point) - np.array((.5,.5)))
@@ -38,6 +38,11 @@ for (x, y, w, h) in faces:
     for idx, point in enumerate(landmarks):
         pos = (point[0, 0], point[0, 1])
         cv2.circle(img, pos, 3, color=(0, 255, 255))
+    t = (landmarks[30,0],landmarks[30,1])
+    cv2.putText(img, 'Q', t,
+                    fontFace=cv2.FONT_HERSHEY_SCRIPT_SIMPLEX,
+                    fontScale=0.4,
+                color=(0, 0, 255))
     # eyes = eye_cascade.detectMultiScale(roi_gray,1.1,10)
     # mouths = mouth_cascade.detectMultiScale(roi_gray,1.5,20)
     # for (ex, ey, ew, eh) in eyes:
